@@ -120,7 +120,7 @@ function rotate_xz({x, y, z}, angle) {
 
 let dz = 1;
 let angle = 0;
-let speed = 0.1;
+let speed = 0.5;
 
 function frame() {
     const dt = 1/FPS;
@@ -135,6 +135,8 @@ function frame() {
     if (keys["a"]) camera.x -= speed*dt;
     if (keys["s"]) camera.y -= speed*dt;
     if (keys["d"]) camera.x += speed*dt;
+    if (keys["q"]) camera.z += speed*dt;
+    if (keys["e"]) camera.z -= speed*dt;
 
     for (const v of vs) {
         //point(screen(project(translate_z(rotate_xz(v, angle), 1))));
@@ -145,8 +147,8 @@ function frame() {
             const b = vs[f[(i + 1) % f.length]];
 
             line(
-            screen(project(translate_z(rotate_xz(camera_translate(a), angle), 1))),
-            screen(project(translate_z(rotate_xz(camera_translate(b), angle), 1)))
+            screen(project(camera_translate(translate_z(rotate_xz(a, angle), 1)))),
+            screen(project(camera_translate(translate_z(rotate_xz(b, angle), 1))))
             );
         }
     }
