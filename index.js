@@ -19,6 +19,14 @@ function point ({x, y}){
     ctx.fillRect(x - s/2, y - s/2, s, s);
 }
 
+function line(p1, p2){
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.strokeStyle = FOREGROUND;
+    ctx.stroke();
+}
+
 function screen(p) {
     // -1..1
 
@@ -48,6 +56,15 @@ const vs = [
     {x: 0.25, y: -0.25, z: -0.25},
     {x: -0.25, y: 0.25, z: -0.25},
 ];
+
+const fs = [
+    [0, 2, 1, 3],
+    [4, 6, 5, 7],
+    [0, 4],
+    [1, 5],
+    [2, 6],
+    [3, 7],
+]
 
 const FPS = 60;
 
@@ -81,7 +98,18 @@ function frame() {
     clear();
 
     for (const v of vs) {
-        point(screen(project(translate_z(rotate_xz(v, angle), 1))));
+        //point(screen(project(translate_z(rotate_xz(v, angle), 1))));
+    }
+    for (const f of fs) {
+        for (let i = 0; i < f.length; i++) {
+            const a = vs[f[i]];
+            const b = vs[f[(i + 1) % f.length]];
+
+            line(
+            screen(project(translate_z(rotate_xz(a, angle), 1))),
+            screen(project(translate_z(rotate_xz(b, angle), 1)))
+            );
+        }
     }
     setTimeout(frame, 1000/FPS);
 }
