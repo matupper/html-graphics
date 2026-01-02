@@ -1,0 +1,12 @@
+{
+  "name": "html-graphics",
+  "version": "1.0.0",
+  "description": "HTML graphics project with auto-reload",
+  "scripts": {
+    "dev": "browser-sync start --server --files \"*.html, *.js\" --port 3000"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.29.3"
+  }
+}
+
