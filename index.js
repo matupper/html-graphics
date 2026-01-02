@@ -1,16 +1,28 @@
 const BACKGROUND = "#000000";
 const FOREGROUND = "#50FF50";
 
-console.log(game);
+const game = document.getElementById("game");
 game.width = 800;
 game.height = 800;
 const ctx = game.getContext("2d");
-console.log(ctx);
+
+// Keyboard input handling
+const keys = {};
+
+window.addEventListener("keydown", (e) => {
+    keys[e.key.toLowerCase()] = true;
+});
+
+window.addEventListener("keyup", (e) => {
+    keys[e.key.toLowerCase()] = false;
+});
 
 function clear(){
     ctx.fillStyle = BACKGROUND;
     ctx.fillRect(0, 0, game.width, game.height);
 }
+
+// functions to draw objects
 
 function point ({x, y}){
     ctx.fillStyle = FOREGROUND;
@@ -27,6 +39,7 @@ function line(p1, p2){
     ctx.stroke();
 }
 
+// function to normalize coordinate plane (0, 0) in the center of the screen
 function screen(p) {
     // -1..1
 
@@ -36,6 +49,7 @@ function screen(p) {
     }
 }
 
+// function to project 3D coordinates to 2D coordinates
 function project({x, y, z}) {
     return {
         x: x/z,
@@ -44,7 +58,22 @@ function project({x, y, z}) {
     }
 }
 
+// camera functions
+let camera = {
+    x: 0,
+    y: 0,
+    z: 0,
+}
 
+function camera_translate({x, y, z}) {
+    return {
+        x: x - camera.x,
+        y: y - camera.y,
+        z: z - camera.z,
+    }
+}
+
+// vertices of the cube
 const vs = [
     {x: 0.25, y: 0.25, z: 0.25},
     {x: -0.25, y: -0.25, z: 0.25},
@@ -57,6 +86,7 @@ const vs = [
     {x: -0.25, y: 0.25, z: -0.25},
 ];
 
+// faces of the cube
 const fs = [
     [0, 2, 1, 3],
     [4, 6, 5, 7],
@@ -66,8 +96,10 @@ const fs = [
     [3, 7],
 ]
 
+// frames per second
 const FPS = 60;
 
+// function to translate the cube along the z-axis
 function translate_z({x, y, z}, dz) {
     return {
         x: x,
@@ -88,6 +120,7 @@ function rotate_xz({x, y, z}, angle) {
 
 let dz = 1;
 let angle = 0;
+let speed = 0.1;
 
 function frame() {
     const dt = 1/FPS;
@@ -96,6 +129,12 @@ function frame() {
     angle += Math.PI*dt;
 
     clear();
+
+    //Keyboard inputs
+    if (keys["w"]) camera.y += speed*dt;
+    if (keys["a"]) camera.x -= speed*dt;
+    if (keys["s"]) camera.y -= speed*dt;
+    if (keys["d"]) camera.x += speed*dt;
 
     for (const v of vs) {
         //point(screen(project(translate_z(rotate_xz(v, angle), 1))));
@@ -106,8 +145,8 @@ function frame() {
             const b = vs[f[(i + 1) % f.length]];
 
             line(
-            screen(project(translate_z(rotate_xz(a, angle), 1))),
-            screen(project(translate_z(rotate_xz(b, angle), 1)))
+            screen(project(translate_z(rotate_xz(camera_translate(a), angle), 1))),
+            screen(project(translate_z(rotate_xz(camera_translate(b), angle), 1)))
             );
         }
     }
