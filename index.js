@@ -51,10 +51,18 @@ function screen(p) {
 
 // function to project 3D coordinates to 2D coordinates
 function project({x, y, z}) {
+    if (z > 0) {
     return {
-        x: x/z,
-        y: y/z,
-        z: z,
+            x: x/z,
+            y: y/z,
+            z: z,
+        }
+    }
+    // if the point is behind the camera, return infinity
+    return {
+        x: Infinity,
+        y: Infinity,
+        z: Infinity,
     }
 }
 
