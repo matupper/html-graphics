@@ -165,7 +165,7 @@ function draw_grid(){
 
 
 // draw a cube
-function draw_cube(p, s){
+function draw_cube(p, s, color = FOREGROUND){
     const vs = [
         {x: p.x + (s/2), y: p.y + (s/2), z: p.z + (s/2)},
         {x: p.x - (s/2), y: p.y + (s/2), z: p.z + (s/2)},
@@ -190,12 +190,12 @@ function draw_cube(p, s){
         for (let i = 0; i < f.length; i++) {
             const a = vs[f[i]];
             const b = vs[f[(i + 1) % f.length]];
-            line(camview(a), camview(b));
+            line(camview(a), camview(b), color || FOREGROUND);
         }
     }
 }
 
-function draw_circle({h, k}, r, n){
+function draw_circle({h, k}, r, n, color = FOREGROUND){
     const vs = [];
     for (let i = 0; i < 360; i += 360/n) {
         const x = h + r * Math.cos(i * Math.PI / 180);
@@ -203,11 +203,11 @@ function draw_circle({h, k}, r, n){
         vs.push({x, y, z: 0});
     }
     for (let i = 0; i < vs.length; i++) {
-        line(camview(vs[i]), camview(vs[(i + 1) % vs.length]), "white");
+        line(camview(vs[i]), camview(vs[(i + 1) % vs.length]), color || FOREGROUND);
     }
 }
 
-function draw_sphere({h, k, l}, r, n){
+function draw_sphere({h, k, l}, r, n, color = FOREGROUND){
     const vs = [];
     for (let i = 0; i < 360; i += 360/n) {
         for (let j = 0; j < 360; j += 360/n) {
@@ -218,10 +218,10 @@ function draw_sphere({h, k, l}, r, n){
         }
     }
     for (let i = 0; i < vs.length; i++) {
-        line(camview(vs[i]), camview(vs[(i + 1) % vs.length]), "pink");
+        line(camview(vs[i]), camview(vs[(i + 1) % vs.length]), color || FOREGROUND );
     }
     for (let i = 0; i < vs.length; i++) {
-        line(camview(vs[i]), camview(vs[(i + n) % vs.length]), "pink");
+        line(camview(vs[i]), camview(vs[(i + n) % vs.length]), color || FOREGROUND);
     }
 
 }
@@ -281,13 +281,13 @@ function frame() {
     // clamp the pitch to the max and min pitch
     camera.rx = Math.max(Math.min(camera.rx, MAX_PITCH), MIN_PITCH);
 
-    // draw_cube({x: 0, y: 0, z: 1}, 0.5);
-    // draw_cube({x: 0, y: 0, z: -1}, 0.5);
-    // draw_cube({x: 1, y: 0, z: 0}, 0.5);
-    // draw_cube({x: -1, y: 0, z: 0}, 0.5);
+    draw_cube({x: 0, y: 0, z: 1}, 0.5);
+    draw_cube({x: 0, y: 0, z: -1}, 0.5);
+    draw_cube({x: 1, y: 0, z: 0}, 0.5);
+    draw_cube({x: -1, y: 0, z: 0}, 0.5);
 
-    // draw_circle({h: 0, k: 0}, 1, 20);
-    draw_sphere({h: 0, k: 0, l: 0}, 1, 20);
+    // draw_sphere({h: 0, k: 0, l: 0}, 1, 20);
+
 
     setTimeout(frame, 1000/FPS);
 }
