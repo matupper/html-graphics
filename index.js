@@ -71,6 +71,18 @@ let camera = {
     ry: 0,
 }
 
+function moveCameraLocal(dx, dy, dz) {
+    const cy = Math.cos(camera.ry);
+    const sy = Math.sin(camera.ry);
+
+    const right = { x: cy, y: 0, z: -sy };
+    const forward = { x: sy, y: 0, z: cy };
+
+    camera.x += right.x * dx + forward.x * dz;
+    camera.y += dy;
+    camera.z += right.z * dx + forward.z * dz;
+}
+
 function camera_translate({x, y, z}) {
     return {
         x: x - camera.x,
@@ -202,27 +214,30 @@ function rotate_xz({x, y, z}, angle) {
     }
 }
 
-let dz = 1;
+
 let angle = 0;
 let speed = 0.5;
 
 function frame() {
     const dt = 1/FPS;
     
-    dz += 1*dt;
-    angle += 0.5*Math.PI*dt;
-
     clear();
     //draw_axis();
     //draw_grid();
 
     //Keyboard inputs
-    if (keys[" "]) camera.y += speed*dt;
-    if (keys["a"]) camera.x -= speed*dt;
-    if (keys["shift"]) camera.y -= speed*dt;
-    if (keys["d"]) camera.x += speed*dt;
-    if (keys["w"]) camera.z += speed*dt;
-    if (keys["s"]) camera.z -= speed*dt;
+    let dx = 0, dy = 0, dz = 0;
+
+    if (keys["a"]) dx -= speed * dt;      // strafe left
+    if (keys["d"]) dx += speed * dt;      // strafe right
+    if (keys["w"]) dz += speed * dt;      // forward
+    if (keys["s"]) dz -= speed * dt;      // backward
+    
+    if (keys[" "]) dy += speed * dt;      // up
+    if (keys["shift"]) dy -= speed * dt;  // down
+    
+    moveCameraLocal(dx, dy, dz);
+
     if (keys["arrowleft"]) camera.ry -= speed*dt;
     if (keys["arrowright"]) camera.ry += speed*dt;
     if (keys["arrowup"]) camera.rx -= speed*dt;
