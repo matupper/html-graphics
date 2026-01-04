@@ -106,7 +106,10 @@ function camera_rotate({x, y, z}, rx, ry) {
 
 // function to render in the camera's perspective
 function camview({x, y, z}) {
-    return screen(project(camera_translate(camera_rotate({x, y, z}, camera.rx, camera.ry))));
+    const t = camera_translate({x, y, z});
+    const r = camera_rotate(t, -camera.rx, -camera.ry);
+
+    return screen(project(r));
 }
 
 function draw_axis(unit = 1){
@@ -123,6 +126,37 @@ function draw_grid(){
     }
 }
 
+
+// draw a cube
+function draw_cube(p, s){
+    const vs = [
+        {x: p.x + (s/2), y: p.y + (s/2), z: p.z + (s/2)},
+        {x: p.x - (s/2), y: p.y + (s/2), z: p.z + (s/2)},
+        {x: p.x + (s/2), y: p.y - (s/2), z: p.z + (s/2)},
+        {x: p.x - (s/2), y: p.y - (s/2), z: p.z + (s/2)},
+
+        {x: p.x + (s/2), y: p.y + (s/2), z: p.z - (s/2)},
+        {x: p.x - (s/2), y: p.y + (s/2), z: p.z - (s/2)},
+        {x: p.x + (s/2), y: p.y - (s/2), z: p.z - (s/2)},
+        {x: p.x - (s/2), y: p.y - (s/2), z: p.z - (s/2)},
+    ]
+    const fs = [
+        [0, 1, 3, 2],
+        [4, 5, 7, 6],
+        [0, 4 ],
+        [1, 5],
+        [2, 6],
+        [3, 7],
+    ]
+
+    for (const f of fs) {
+        for (let i = 0; i < f.length; i++) {
+            const a = vs[f[i]];
+            const b = vs[f[(i + 1) % f.length]];
+            line(camview(a), camview(b));
+        }
+    }
+}
 // vertices of the cube
 const vs = [
     {x: 0.25, y: 0.25, z: 0.25},
@@ -179,8 +213,8 @@ function frame() {
     angle += 0.5*Math.PI*dt;
 
     clear();
-    draw_axis();
-    draw_grid();
+    //draw_axis();
+    //draw_grid();
 
     //Keyboard inputs
     if (keys[" "]) camera.y += speed*dt;
@@ -189,25 +223,16 @@ function frame() {
     if (keys["d"]) camera.x += speed*dt;
     if (keys["w"]) camera.z += speed*dt;
     if (keys["s"]) camera.z -= speed*dt;
-    if (keys["arrowleft"]) camera.ry += speed*dt;
-    if (keys["arrowright"]) camera.ry -= speed*dt;
-    if (keys["arrowup"]) camera.rx += speed*dt;
-    if (keys["arrowdown"]) camera.rx -= speed*dt;
+    if (keys["arrowleft"]) camera.ry -= speed*dt;
+    if (keys["arrowright"]) camera.ry += speed*dt;
+    if (keys["arrowup"]) camera.rx -= speed*dt;
+    if (keys["arrowdown"]) camera.rx += speed*dt;
 
-    for (const v of vs) {
-        //point(screen(project(translate_z(rotate_xz(v, angle), 1))));
-    }
-    for (const f of fs) {
-        for (let i = 0; i < f.length; i++) {
-            const a = vs[f[i]];
-            const b = vs[f[(i + 1) % f.length]];
+    draw_cube({x: 0, y: 0, z: 1}, 0.5);
+    draw_cube({x: 0, y: 0, z: -1}, 0.5);
+    draw_cube({x: 1, y: 0, z: 0}, 0.5);
+    draw_cube({x: -1, y: 0, z: 0}, 0.5);
 
-            line(
-            camview(translate_z(a, 1)),
-            camview(translate_z(b, 1))
-            );
-        }
-    }
     setTimeout(frame, 1000/FPS);
 }
 
