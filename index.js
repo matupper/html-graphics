@@ -32,11 +32,11 @@ function point ({x, y}){
     ctx.fillRect(x - s/2, y - s/2, s, s);
 }
 
-function line(p1, p2){
+function line(p1, p2, color){
     ctx.beginPath();
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
-    ctx.strokeStyle = FOREGROUND;
+    ctx.strokeStyle = color || FOREGROUND;
     ctx.stroke();
 }
 
@@ -52,18 +52,13 @@ function screen(p) {
 
 // function to project 3D coordinates to 2D coordinates
 function project({x, y, z}) {
-    if (z > 0) {
-    return {
-            x: x/z,
-            y: y/z,
-            z: z,
-        }
+    if (z > 0) return {
+        x: x/z,
+        y: y/z,
     }
-    // if the point is behind the camera, return infinity
     return {
         x: Infinity,
         y: Infinity,
-        z: Infinity,
     }
 }
 
@@ -114,9 +109,18 @@ function camview({x, y, z}) {
     return screen(project(camera_translate(camera_rotate({x, y, z}, camera.rx, camera.ry))));
 }
 
-// function to render in world coordinates
-function worldview({x, y, z}) {
-    return screen(project({x, y, z}));
+function draw_axis(unit = 1){
+    return line(camview({x: -unit, y: 0, z: 0}), camview({x: unit, y: 0, z: 0}), "red"), 
+           line(camview({x: 0, y: -unit, z: 0}), camview({x: 0, y: unit, z: 0}), "green"), 
+           line(camview({x: 0, y: 0, z: -unit}), camview({x: 0, y: 0, z: unit}), "blue");
+}
+
+
+function draw_grid(){
+    for (let i = -10; i < 10; i++) {
+        line(camview({x: i, y: 0, z: -10}), camview({x: i, y: 0, z: 10}), "gray");
+        line(camview({x: -10, y: 0, z: i}), camview({x: 10, y: 0, z: i}), "gray");
+    }
 }
 
 // vertices of the cube
@@ -175,18 +179,20 @@ function frame() {
     angle += 0.5*Math.PI*dt;
 
     clear();
+    draw_axis();
+    draw_grid();
 
     //Keyboard inputs
-    if (keys["shift"]) camera.y += speed*dt;
+    if (keys[" "]) camera.y += speed*dt;
     if (keys["a"]) camera.x -= speed*dt;
-    if (keys["control"]) camera.y -= speed*dt;
+    if (keys["shift"]) camera.y -= speed*dt;
     if (keys["d"]) camera.x += speed*dt;
     if (keys["w"]) camera.z += speed*dt;
     if (keys["s"]) camera.z -= speed*dt;
-    if (keys["arrowleft"]) camera.ry += 2*speed*dt;
-    if (keys["arrowright"]) camera.ry -= 2*speed*dt;
-    if (keys["arrowup"]) camera.rx += 2*speed*dt;
-    if (keys["arrowdown"]) camera.rx -= 2*speed*dt;
+    if (keys["arrowleft"]) camera.ry += speed*dt;
+    if (keys["arrowright"]) camera.ry -= speed*dt;
+    if (keys["arrowup"]) camera.rx += speed*dt;
+    if (keys["arrowdown"]) camera.rx -= speed*dt;
 
     for (const v of vs) {
         //point(screen(project(translate_z(rotate_xz(v, angle), 1))));
