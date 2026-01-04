@@ -111,7 +111,7 @@ function camera_rotate({x, y, z}, rx, ry) {
 
 // function to render in the camera's perspective
 function camview({x, y, z}) {
-    return screen(project(camera_rotate(camera_translate({x, y, z}), camera.rx, camera.ry)));
+    return screen(project(camera_translate(camera_rotate({x, y, z}, camera.rx, camera.ry))));
 }
 
 // function to render in world coordinates
@@ -172,7 +172,7 @@ function frame() {
     const dt = 1/FPS;
     
     dz += 1*dt;
-    angle += Math.PI*dt;
+    angle += 0.5*Math.PI*dt;
 
     clear();
 
